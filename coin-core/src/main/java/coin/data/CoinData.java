@@ -1,3 +1,5 @@
+package coin.data;
+
 import java.util.List;
 
 public class CoinData {
@@ -8,7 +10,7 @@ public class CoinData {
     public CoinData(String name) {
         this.name = name;
         this.timestamp = System.currentTimeMillis() / 1000;
-    } 
+    }
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;

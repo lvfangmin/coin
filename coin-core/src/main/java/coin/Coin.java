@@ -15,6 +15,7 @@ import com.google.common.eventbus.EventBus;
 
 import coin.conf.CoinConfiguration;
 import coin.data.DataPreProcessing;
+import coin.crawler.Crawler;
 
 public class Coin {
 
@@ -56,6 +57,8 @@ public class Coin {
                 // TODO: Init Data pre processing layer
                 dpp = new DataPreProcessing(conf).register(dataEventBus);
                 // TODO: Init Crawler layer
+                Crawler crawler = new Crawler();
+                crawler.run();
                 // TODO: Init jmx
                 try {
                     mBeanServer = ManagementFactory.getPlatformMBeanServer();
