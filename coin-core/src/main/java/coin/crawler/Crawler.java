@@ -5,11 +5,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-<<<<<<< Updated upstream
-=======
-import java.nio.charset.Charset;
-
->>>>>>> Stashed changes
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,13 +23,6 @@ import java.util.TimerTask;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
-<<<<<<< Updated upstream
-=======
-
-
-
-
->>>>>>> Stashed changes
 //import org.apache.commons.configuration;
 //import org.apache.commons.configuration.BaseConfiguration;
 import java.io.IOException;
