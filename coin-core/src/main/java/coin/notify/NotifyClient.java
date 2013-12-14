@@ -28,6 +28,7 @@ public class NotifyClient{
     private boolean closed = true;
     
     private Sender mailSender = null;
+    private NotifyListener notifyListener = null;
     
     public NotifyClient(EventBus eventBus, CoinConfiguration coinConfig){
         this.eventBus = eventBus;
@@ -47,7 +48,8 @@ public class NotifyClient{
     }
 
     private void initListener() {
-        
+        notifyListener = new NotifyListener(this);
+        this.eventBus.register(notifyListener);
     }
 
     public boolean shutdown() {
