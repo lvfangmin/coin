@@ -59,8 +59,13 @@ public class Coin {
                 // TODO: Init Data pre processing layer
                 dpp = new DataPreProcessing(conf, notifyEventBus).registerTo(dataEventBus);
                 // TODO: Init Crawler layer
+<<<<<<< Updated upstream
                 Crawler crawler = new Crawler(conf, dataEventBus);
                 crawler.start();
+=======
+                Crawler crawler = new Crawler(null, dataEventBus);
+                crawler.run();
+>>>>>>> Stashed changes
                 // TODO: Init jmx
                 try {
                     mBeanServer = ManagementFactory.getPlatformMBeanServer();

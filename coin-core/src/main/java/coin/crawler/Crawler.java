@@ -5,6 +5,11 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+<<<<<<< Updated upstream
+=======
+import java.nio.charset.Charset;
+
+>>>>>>> Stashed changes
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,6 +28,13 @@ import java.util.TimerTask;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
+<<<<<<< Updated upstream
+=======
+
+
+
+
+>>>>>>> Stashed changes
 //import org.apache.commons.configuration;
 //import org.apache.commons.configuration.BaseConfiguration;
 import java.io.IOException;
@@ -57,10 +69,10 @@ public class Crawler {
                     Elements elements = doc.select("#marketLast");
                     Data data = new Data();
                     for (Element element : elements) {
-                        logger.info("最新价格： " + element.text());
+                        logger.info("��������������� " + element.text());
                         data.setLatestPrice(Double.valueOf(element.text()));
                     }
-                    logger.info("买入委托");
+                    logger.info("������������");
                     Elements buyElements = doc.select("div.real-left tbody tr");
                     List<Trade> buyList = new ArrayList<Trade>();
                     for (Element element : buyElements) {
@@ -69,7 +81,7 @@ public class Crawler {
                                                 Double.valueOf(element.child(2).text().substring(1)));
                         buyList.add(trade);
                     }
-                    logger.info("卖出委托");
+                    logger.info("������������");
                     Elements sellElements = doc.select("div.real-right tbody tr");
                     List<Trade> sellList = new ArrayList<Trade>();
                     for (Element element : sellElements) {

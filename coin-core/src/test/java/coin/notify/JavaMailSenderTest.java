@@ -6,7 +6,7 @@ public class JavaMailSenderTest {
 
     @Test
     public void test() {
-        JavaMailSender ms = new JavaMailSender();
+        MailSender ms = new MailSender();
         ms.send(null, null);
     }
 
