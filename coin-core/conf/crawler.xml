@@ -6,7 +6,7 @@
                <interval>60</interval>
                <type>btc</type>
                <url>https://www.okcoin.com/market.do?symbol=0</url>
-               <latestPriceSelector>#marketLast</latestPricesSelector>
+               <latestPriceSelector>#marketLast</latestPriceSelector>
                <buyInSelector>div.real-left tbody tr</buyInSelector>
                <sellOutSelector>div.real-right tbody tr</sellOutSelector>
                <placeholderLength>1</placeholderLength>
@@ -15,8 +15,8 @@
                <name>okcoin</name>
                <interval>60</interval>
                <type>ltc</type>
-               <url>https://www.okcoin.com/market.do?symbol=1</href>
-               <latestPriceSelector>#marketLast</latestPricesSelector>
+               <url>https://www.okcoin.com/market.do?symbol=1</url>
+               <latestPriceSelector>#marketLast</latestPriceSelector>
                <buyInSelector>div.real-left tbody tr</buyInSelector>
                <sellOutSelector>div.real-right tbody tr</sellOutSelector>
                <placeholderLength>1</placeholderLength>

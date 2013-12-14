@@ -1,6 +1,7 @@
 package coin.crawler;
 
 public class CoinTarget {
+
 	private String name;
 	private int interval;
 	private String type;

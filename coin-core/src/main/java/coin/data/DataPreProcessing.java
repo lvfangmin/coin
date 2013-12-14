@@ -36,10 +36,17 @@ public class DataPreProcessing {
     @Subscribe
     public void handleRawData(CoinData data) {
         double price = data.getLatestPrice();
-        if (price > 5500) {
+        double alertPrice = 0.0;
+        if (data.getType().equals("btc")) {
+            alertPrice = 5450;
+        } else {
+            alertPrice = 190;
+        }
+
+        if (price < alertPrice) {
             logger.info("Send notification to 124083308@qq.com, latest price is " + price);
             triggerNotify(new Notification("124083308@qq.com", DestinationType.MAIL,
-                "The latest price of " + data.getType() + " is larger than your subscription price, current price " + price));
+                "The latest price of " + data.getType() + " is less than your subscription price, current price " + price));
         }
     }
 
