@@ -75,7 +75,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<mainClass>coin.Main</mainClass>
+					<mainClass>coin.Application</mainClass>
 				</configuration>
 			</plugin>
 		</plugins>
