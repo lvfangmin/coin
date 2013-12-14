@@ -26,14 +26,14 @@ public class Crawler {
     private List<CoinTarget> targets;
 
     protected static final String COIN_TARGET_NAME_PREFIX = "targets.target.name";
-    protected static final String COIN_TARGET_NAME = "targets.target($1).name";
-    protected static final String COIN_TARGET_TYPE = "targets.target($1).type";
-    protected static final String COIN_TARGET_URL = "targets.target($1).url";
-    protected static final String COIN_TARGET_PRICE_SELECTOR = "targets.target($1).latestPriceSelector";
-    protected static final String COIN_TARGET_BUY_SELECTOR = "targets.target($1).buyInSelector";
-    protected static final String COIN_TARGET_SELL_SELECTOR = "targets.target($1).sellOutSelector";
-    protected static final String COIN_TARGET_PLACEHOLDER_LENGTH = "targets.target($1).placeholderLength";
-    protected static final String COIN_TARGET_CRAWLER_INTERVAL = "targets.target($1).interval";
+    protected static final String COIN_TARGET_NAME = "targets.target($i).name";
+    protected static final String COIN_TARGET_TYPE = "targets.target($i).type";
+    protected static final String COIN_TARGET_URL = "targets.target($i).url";
+    protected static final String COIN_TARGET_PRICE_SELECTOR = "targets.target($i).latestPriceSelector";
+    protected static final String COIN_TARGET_BUY_SELECTOR = "targets.target($i).buyInSelector";
+    protected static final String COIN_TARGET_SELL_SELECTOR = "targets.target($i).sellOutSelector";
+    protected static final String COIN_TARGET_PLACEHOLDER_LENGTH = "targts.target($i).placeholderLength";
+    protected static final String COIN_TARGET_CRAWLER_INTERVAL = "targets.target($i).interval";
     
     public Crawler(CoinConfiguration conf, EventBus eventBus) {
         this.conf = conf;
@@ -57,7 +57,6 @@ public class Crawler {
     	for (int i = 0; i < targetPrefix.length; ++i) {
     		String index = String.valueOf(i);
     		String name = crawlerConf.getString(COIN_TARGET_NAME.replace("$1", index));
-            logger.info("Add target with name {}", name);
     		String type = crawlerConf.getString(COIN_TARGET_TYPE.replace("$1", index));
             int interval = Integer.valueOf(crawlerConf.getString(COIN_TARGET_CRAWLER_INTERVAL.replace("$1", index)));
             String latestPriceSelector = crawlerConf.getString(COIN_TARGET_PRICE_SELECTOR.replace("$1", index));
