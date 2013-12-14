@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import coin.conf.CoinConfiguration;
+import coin.util.StringUtil;
 
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
@@ -27,7 +28,12 @@ public class NotificationListener {
     private CoinConfiguration coinConfig = null;
     private boolean closed = true;
     
+    private String template = null;
+    
     private Sender mailSender = null;
+    
+    private static final String TO_REPLACE = "$(content)";
+    private static final String MAIL_TEMPLATE = "mail.template";
     
     public NotificationListener(CoinConfiguration coinConfig, EventBus eventBus){
         this.eventBus = eventBus;
@@ -44,6 +50,7 @@ public class NotificationListener {
     
     private void initSender() {
         mailSender = new MailSender();
+        template = StringUtil.readToString(coinConfig.getCompositeConfiguration().getString("mail.template"));
     }
 
     private void initListener() {
@@ -103,7 +110,7 @@ public class NotificationListener {
         @Override
         public void run() {
             try {
-                sender.send(notification.getDestination(), notification.getContent());
+                sender.send(notification.getDestination(), template.replace("$(content)", notification.getContent()));
             } catch (Exception ex) {
                 logger.error("Failed to send notification to {}", notification.getDestination());
             }
