@@ -27,7 +27,7 @@ public class Coin {
     CoinConfiguration conf;
     EventBus dataEventBus;
     EventBus notifyEventBus;
-    NotificationListener nl;
+    NotificationListener notifyListener;
     Crawler crawler;
     DataPreProcessing dpp;
     MBeanServer mBeanServer;
@@ -56,7 +56,7 @@ public class Coin {
                 dataEventBus = new EventBus("Data Event Bus");
                 notifyEventBus = new EventBus("Notify Event Bus");
                 // TODO: Init Notify layer
-                nl = new NotificationListener(notifyEventBus, conf);
+                notifyListener = new NotificationListener(notifyEventBus, conf);
                 // TODO: Init Persistence layer
                 // TODO: Init Rule engine layer
                 // TODO: Init Data pre processing layer
@@ -90,7 +90,7 @@ public class Coin {
         // TODO: Stop Data pre processing layer
         // TODO: Stop Rule engine layer
         // TODO: Stop Persistence layer
-        nl.shutdown();
+        notifyListener.shutdown();
         logger.info("Successfully shutdown Coin server.");
     }
 
