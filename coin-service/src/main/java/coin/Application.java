@@ -4,7 +4,8 @@ import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
 
-import coin.database.RedisInstance;
+import coin.redis.RedisConf;
+import coin.redis.RedisInstance;
 
 import java.io.IOException;
 import java.net.URI;
@@ -50,6 +51,8 @@ public class Application {
     }
 
     public static void initial() {
+        RedisConf conf = new RedisConf("localhost");
+        RedisInstance.init(conf);
         RedisInstance.getInstance();
     }
 }

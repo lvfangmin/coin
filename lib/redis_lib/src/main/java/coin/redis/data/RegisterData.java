@@ -1,4 +1,4 @@
-package coin.data;
+package coin.redis.data;
 
 import javax.xml.bind.annotation.XmlRootElement;
 

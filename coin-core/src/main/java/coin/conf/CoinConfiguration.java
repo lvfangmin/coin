@@ -1,6 +1,10 @@
 package coin.conf;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -30,4 +34,5 @@ public class CoinConfiguration {
     public CompositeConfiguration getCompositeConfiguration() {
         return conf;
     }
+    
 }

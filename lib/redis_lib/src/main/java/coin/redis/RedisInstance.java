@@ -1,31 +1,34 @@
-package coin.database;
+package coin.redis;
 
-import coin.Contant;
-import coin.data.RegisterData;
-import coin.data.ResponseData;
+import java.util.Map;
+import java.util.Set;
 
-import com.sun.org.apache.bcel.internal.generic.RETURN;
-
+import coin.redis.data.RegisterData;
+import coin.redis.data.ResponseData;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.Pipeline;
 import redis.clients.jedis.Response;
 import redis.clients.jedis.Transaction;
 
 public class RedisInstance {
-
     private static RedisInstance instance;
+    private static RedisConf conf;
 
     private Jedis jedis;
 
     private RedisInstance() {
-        jedis = new Jedis("localhost");
+        jedis = new Jedis(conf.getRedis_url());
     }
 
     public static RedisInstance getInstance() {
-        if (instance == null) {
+        if (instance == null && conf != null) {
             instance = new RedisInstance();
         }
         return instance;
+    }
+
+    public static void init(RedisConf conf) {
+        RedisInstance.conf = conf;
     }
 
     public void set(String key, String value) {
@@ -47,11 +50,11 @@ public class RedisInstance {
 
         Pipeline pipeline = jedis.pipelined();
         // Register user info
-        pipeline.set(Contant.QUERY_UID.replace(Contant.REPLACE, data.email), String.valueOf(uid));
-        pipeline.set(Contant.EMAIL.replace(Contant.REPLACE, uidStr), data.email);
-        pipeline.set(Contant.PWD.replace(Contant.REPLACE, uidStr), data.pwd);
-        pipeline.set(Contant.RULE.replace(Contant.REPLACE, uidStr), ruleId);
-        pipeline.set(Contant.PARAM.replace(Contant.REPLACE, uidStr), data.param);
+        pipeline.set(Contant.QUERY_UID.replace(Contant.REPLACE, data.email), uidStr);
+        pipeline.hset(Contant.UID_PATTERN.replace(Contant.REPLACE, uidStr), Contant.EMAIL, data.email);
+        pipeline.hset(Contant.UID_PATTERN.replace(Contant.REPLACE, uidStr), Contant.PWD, data.pwd);
+        pipeline.hset(Contant.UID_PATTERN.replace(Contant.REPLACE, uidStr), Contant.RULE, ruleId);
+        pipeline.hset(Contant.UID_PATTERN.replace(Contant.REPLACE, uidStr), Contant.PARAM, data.param);
 
         // Add uid to certain rule set
         pipeline.sadd(Contant.RULE_SET.replace(Contant.REPLACE, ruleId), uidStr);
@@ -73,14 +76,14 @@ public class RedisInstance {
         }
 
         String uid = jedis.get(Contant.QUERY_UID.replace(Contant.REPLACE, data.email));
-        String preRuleId = jedis.get(Contant.RULE.replace(Contant.REPLACE, uid));
-        String preParam = jedis.get(Contant.PARAM.replace(Contant.REPLACE, uid));
+        String preRuleId = jedis.hget(Contant.UID_PATTERN.replace(Contant.REPLACE, uid), Contant.RULE);
+        String preParam = jedis.hget(Contant.UID_PATTERN.replace(Contant.REPLACE, uid), Contant.PARAM);
 
         Transaction transaction = jedis.multi();
         if (data.rule != null) {
             String ruleId = String.valueOf(data.rule);
             if (!ruleId.equals(preRuleId)) {
-                transaction.set(Contant.RULE.replace(Contant.REPLACE, uid), ruleId);
+                transaction.hset(Contant.UID_PATTERN.replace(Contant.REPLACE, uid), Contant.RULE, ruleId);
                 transaction.sadd(Contant.RULE_SET.replace(Contant.REPLACE, ruleId), uid);
                 transaction.srem(Contant.RULE_SET.replace(Contant.REPLACE, preRuleId), uid);
             }
@@ -89,7 +92,7 @@ public class RedisInstance {
         if (data.param != null) {
             String param = data.param;
             if (!param.equals(preParam)) {
-                transaction.set(Contant.PARAM.replace(Contant.REPLACE, uid), param);
+                transaction.hset(Contant.UID_PATTERN.replace(Contant.REPLACE, uid), Contant.PARAM, param);
             }
         }
         transaction.exec();
@@ -101,15 +104,26 @@ public class RedisInstance {
             return null;
         }
 
-        Pipeline pipeline = jedis.pipelined();
+        Map<String, String> info = jedis.hgetAll(Contant.UID_PATTERN.replace(Contant.REPLACE, uid));
 
-        Response<String> email = pipeline.get(Contant.EMAIL.replace(Contant.REPLACE, uid));
-        Response<String> rule = pipeline.get(Contant.RULE.replace(Contant.REPLACE, uid));
-        Response<String> param = pipeline.get(Contant.PARAM.replace(Contant.REPLACE, uid));
-
-        pipeline.sync();
-
-        RegisterData data = new RegisterData(email.get(), Integer.parseInt(rule.get()), param.get());
+        RegisterData data = new RegisterData(info.get(Contant.EMAIL), Integer.parseInt(info.get(Contant.RULE)),
+                info.get(Contant.PARAM));
         return data;
     }
+
+    public Set<String> getUids(String rule_id) {
+        if (!jedis.exists(Contant.RULE_SET.replace(Contant.REPLACE, rule_id))) {
+            return null;
+        }
+        return jedis.smembers(Contant.RULE_SET.replace(Contant.REPLACE, rule_id));
+    }
+
+    public String getEmail(String uid) {
+        return jedis.hget(Contant.UID_PATTERN.replace(Contant.REPLACE, uid), Contant.EMAIL);
+    }
+
+    public String getParam(String uid) {
+        return jedis.hget(Contant.UID_PATTERN.replace(Contant.REPLACE, uid), Contant.PARAM);
+    }
+
 }
