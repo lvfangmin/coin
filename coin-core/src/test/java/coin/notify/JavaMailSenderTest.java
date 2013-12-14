@@ -2,6 +2,8 @@ package coin.notify;
 
 import org.junit.Test;
 
+import coin.notify.sender.MailSender;
+
 public class JavaMailSenderTest {
 
     @Test

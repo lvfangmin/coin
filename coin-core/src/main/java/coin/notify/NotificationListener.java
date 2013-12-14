@@ -10,6 +10,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import coin.conf.CoinConfiguration;
+import coin.notify.sender.MailSender;
+import coin.notify.sender.Sender;
 import coin.util.StringUtil;
 
 import com.google.common.eventbus.EventBus;
