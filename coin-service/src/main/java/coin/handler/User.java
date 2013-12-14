@@ -9,8 +9,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
 import coin.redis.RedisInstance;
-import coin.redis.data.RegisterData;
 import coin.redis.data.ResponseData;
+import coin.redis.data.UserData;
 
 @Path("user")
 public class User {
@@ -19,7 +19,7 @@ public class User {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseData register(RegisterData registerData) {
+    public ResponseData register(UserData registerData) {
         // TODO input validation
         return RedisInstance.getInstance().register(registerData);
 
@@ -29,7 +29,7 @@ public class User {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ResponseData subscribe(RegisterData registerData) {
+    public ResponseData subscribe(UserData registerData) {
         // TODO input validation
         return RedisInstance.getInstance().subscribe(registerData);
 
@@ -38,7 +38,7 @@ public class User {
     @Path("/query/{uid}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public RegisterData query(@PathParam("uid") String uid) {
+    public UserData query(@PathParam("uid") String uid) {
         // TODO input validation
         return RedisInstance.getInstance().query(uid);
     }
