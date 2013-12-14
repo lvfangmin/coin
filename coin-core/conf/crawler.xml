@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<urls>
-  <url>
-    <name>okcoin</name>
-    <type>
-      <value>btc</value>
-      <href></href>
-      <fields>
-        <field>
-           <name>latest</name>
-           <selector></selector>
-	</field>
-        <field>
-           <name>buy</name>
-           <selector></selector>
-        </field>
-        <field>
-          <name>sell</name>
-          <selector></selector>
-        </field>
-      </fields>
-    </type>
-  </url>
-</urls>
+<config>
+    <targets>
+        <target>
+               <name>okcoin</name>
+               <interval>60</interval>
+               <type>btc</type>
+               <url>https://www.okcoin.com/market.do?symbol=0</url>
+               <latestPriceSelector>#marketLast</latestPricesSelector>
+               <buyInSelector>div.real-left tbody tr</buyInSelector>
+               <sellOutSelector>div.real-right tbody tr</sellOutSelector>
+               <placeholderLength>1</placeholderLength>
+        </target>
+        <target>
+               <name>okcoin</name>
+               <interval>60</interval>
+               <type>ltc</type>
+               <url>https://www.okcoin.com/market.do?symbol=1</href>
+               <latestPriceSelector>#marketLast</latestPricesSelector>
+               <buyInSelector>div.real-left tbody tr</buyInSelector>
+               <sellOutSelector>div.real-right tbody tr</sellOutSelector>
+               <placeholderLength>1</placeholderLength>
+        </target>
+    </targets>
+</config>
