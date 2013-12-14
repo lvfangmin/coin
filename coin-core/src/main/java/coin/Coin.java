@@ -56,7 +56,7 @@ public class Coin {
                 dataEventBus = new EventBus("Data Event Bus");
                 notifyEventBus = new EventBus("Notify Event Bus");
                 // TODO: Init Notify layer
-                notifyListener = new NotificationListener(notifyEventBus, conf);
+                notifyListener = new NotificationListener(conf, notifyEventBus);
                 // TODO: Init Persistence layer
                 // TODO: Init Rule engine layer
                 // TODO: Init Data pre processing layer

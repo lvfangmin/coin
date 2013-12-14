@@ -29,7 +29,7 @@ public class NotificationListener {
     
     private Sender mailSender = null;
     
-    public NotificationListener(EventBus eventBus, CoinConfiguration coinConfig){
+    public NotificationListener(CoinConfiguration coinConfig, EventBus eventBus){
         this.eventBus = eventBus;
         this.coinConfig = coinConfig;
         init();
