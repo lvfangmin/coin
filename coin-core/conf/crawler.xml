@@ -21,5 +21,15 @@
                <sellOutSelector>div.real-right tbody tr</sellOutSelector>
                <placeholderLength>1</placeholderLength>
         </target>
+        <target>
+               <name>yuanbaohui</name>
+               <interval>60</interval>
+               <type>ybc</type>
+               <url>http://ybh.ybcoin.com</url>
+               <latestPriceSelector>#btc_buyone</latestPriceSelector>
+               <buyInSelector>div.realTableLeft tbody tr</buyInSelector>
+               <sellOutSelector>div.realTableRight tbody tr</sellOutSelector>
+               <placeholderLength>1</placeholderLength>
+        </target>
     </targets>
 </config>
