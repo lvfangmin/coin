@@ -1,4 +1,4 @@
-package coin.notify;
+package coin.notify.sender;
 
 import java.util.Properties;
 
