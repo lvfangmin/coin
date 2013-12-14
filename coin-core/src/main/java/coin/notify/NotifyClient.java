@@ -35,8 +35,6 @@ public class NotifyClient{
         init();
     }
     
-    public boolean send(String user, String content)
-    
     private void init(){
         initExecutor();
         initListener();
@@ -44,6 +42,14 @@ public class NotifyClient{
     }
     
     
+    private void initSender() {
+        mailSender = new MailSender();
+    }
+
+    private void initListener() {
+        
+    }
+
     public boolean shutdown() {
         if (this.workerPool != null) {
             this.executor.shutdown();
@@ -56,7 +62,7 @@ public class NotifyClient{
             }
         }
         closed = true;
-        LOG.info("MetaStorage shutdown successfully");
+        logger.info("NotifyClient shutdown successfully");
         return true;
     }
     
@@ -87,32 +93,33 @@ public class NotifyClient{
     private class NotifyTask implements Runnable {
 
         private Sender sender;
-        private Notifycation notifycation;
+        private Notification notification;
 
-        public QueryTask(Sender sender, Notification notification) {
-            this.userId = userId;
-            this.topic = topic;
-            this.callback = callback;
+        public NotifyTask(Sender sender, Notification notification) {
+            this.sender = sender;
+            this.notification = notification;
         }
 
         @Override
         public void run() {
-            long beforeSonoraHit = 0L;
             try {
-                beforeSonoraHit = System.currentTimeMillis();
-                List<Target> targets = storageStrategy.query(this.userId, topic);
-                long afterSonoraHitSuccess = System.currentTimeMillis();
-                metrics.setQueryRequestProcessLatency(afterSonoraHitSuccess - beforeSonoraHit);
-                LOG.info("out Sync query latency:" + (afterSonoraHitSuccess - beforeSonoraHit));
-                LOG.info("Metadata is successfully retrieved and constructed for key(" + userId + "), invoke listener.");
-                this.callback.onComplete(targets);
-            } catch (MetaStorageException ex) {
-                long afterSonoraHitSuccess = System.currentTimeMillis();
-                metrics.setQueryRequestProcessLatency(afterSonoraHitSuccess - beforeSonoraHit);
-                LOG.error("Metadata failed to retrieve and construct for key(" + userId + "), invoke listener.");
-                LOG.error("out Sync query latency:" + (afterSonoraHitSuccess - beforeSonoraHit));
-                this.callback.onException((MetaStorageException) ex);
+                sender.send(notification.getDestination(), notification.getContent());
+                logger.info("Notify successed");
+            } catch (Exception ex) {
+                logger.error("Notify failed");
             }
+        }
+    }
+
+    public void send(Notification notification) {
+        if(!this.closed&&notification.getDestinationType().equals(Notification.DestinationType.MAIL)){
+            this.executor.execute(new NotifyTask(this.mailSender,notification));
+        }
+        else if(this.closed){
+            logger.error("NotifyClient has been closed!");
+        }
+        else{
+            logger.error("Unsupported channel!");
         }
     }
 
