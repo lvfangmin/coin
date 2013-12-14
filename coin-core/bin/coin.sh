@@ -25,6 +25,7 @@ COIN_LOG_DIR=${COIN_LOG_DIR:-"$COIN_HOME/logs"}
 COIN_LOG=$COIN_LOG_DIR/coin.log
 COIN_LOG_OUT=$COIN_LOG_DIR/coin.out
 COIN_CONF=${COIN_CONF:-$COIN_HOME/conf/coin.conf}
+COIN_CRAWLER_CONF=${CONF_CRAWLER_CONF:-$COIN_HOME/conf/crawler.xml}
 Coin_LOG_CONF=${COIN_LOG_CONF:-$COIN_HOME/conf/log4j.properties}
 COIN_LOG_LEVEL=${COIN_LOG_LEVEL:-INFO}
 COIN_LOG_APPENDER=${COIN_LOG_APPENDER:-ROLLINGFILE}
@@ -115,7 +116,7 @@ case $command in
         rotate_out_log $COIN_LOG_OUT
         echo "Starting coin, logging to $COIN_LOG"
         cd "$COIN_HOME"
-        nohup java -cp $COIN_CLASSPATH $OPTS coin.Coin $COIN_CONF > $COIN_LOG_OUT 2>&1 < /dev/null &
+        nohup java -cp $COIN_CLASSPATH $OPTS coin.Coin $COIN_CONF $COIN_CRAWLER_CONF > $COIN_LOG_OUT 2>&1 < /dev/null &
         if [ $? -eq 0 ]
         then
             if echo -n $! > "$COIN_PID_FILE"

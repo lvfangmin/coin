@@ -1,13 +1,12 @@
 package coin;
 
-import java.io.File;
-
 import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +14,8 @@ import com.google.common.eventbus.EventBus;
 
 import coin.conf.CoinConfiguration;
 import coin.data.DataPreProcessing;
+import coin.notify.NotificationListener;
+import coin.crawler.Crawler;
 
 public class Coin {
 
@@ -25,6 +26,9 @@ public class Coin {
 
     CoinConfiguration conf;
     EventBus dataEventBus;
+    EventBus notifyEventBus;
+    NotificationListener notifyListener;
+    Crawler crawler;
     DataPreProcessing dpp;
     MBeanServer mBeanServer;
 
@@ -50,12 +54,16 @@ public class Coin {
             @Override
             public void run() {
                 dataEventBus = new EventBus("Data Event Bus");
+                notifyEventBus = new EventBus("Notify Event Bus");
                 // TODO: Init Notify layer
+                notifyListener = new NotificationListener(conf, notifyEventBus);
                 // TODO: Init Persistence layer
                 // TODO: Init Rule engine layer
                 // TODO: Init Data pre processing layer
-                dpp = new DataPreProcessing(conf).register(dataEventBus);
+                dpp = new DataPreProcessing(conf, notifyEventBus).registerTo(dataEventBus);
                 // TODO: Init Crawler layer
+                crawler = new Crawler(conf, dataEventBus);
+                crawler.start();
                 // TODO: Init jmx
                 try {
                     mBeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -82,7 +90,7 @@ public class Coin {
         // TODO: Stop Data pre processing layer
         // TODO: Stop Rule engine layer
         // TODO: Stop Persistence layer
-        // TODO: Stop Notify layer
+        notifyListener.shutdown();
         logger.info("Successfully shutdown Coin server.");
     }
 
@@ -90,15 +98,24 @@ public class Coin {
         logger.info("Attempting to start Coin server...");
         CoinConfiguration conf = new CoinConfiguration();
 
+        if (args.length != 2) {
+            logger.error("Please provide the conf file for coin and crawler");
+            System.exit(INVALID_CONF_FILE);
+        }
+
         if (args.length > 0) {
-            String confFile = args[0];
+            String coinProperties = args[0];
+            String crawlerXml = args[1];
             try {
-                conf.loadConf(new File(confFile).toURI().toURL());
+                conf.loadConf(coinProperties, crawlerXml);
             } catch (MalformedURLException e) {
-                logger.error("Could not open configuration file: {}", confFile);
+                logger.error("Could not open configuration file: {}", coinProperties);
                 System.exit(INVALID_CONF_FILE);
+            } catch (ConfigurationException e) {
+                logger.error("Malformed configuration file: {}", coinProperties);
+                System.exit(MALFORMED_CONF_FILE);
             }
-            logger.info("Using configuration file {}", confFile);
+            logger.info("Using configuration file {}", coinProperties);
         }
 
         new Coin(conf).start();

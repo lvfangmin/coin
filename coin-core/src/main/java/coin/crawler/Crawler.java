@@ -1,109 +1,91 @@
 package coin.crawler;
 
-import org.jsoup.Jsoup;
-import org.jsoup.helper.Validate;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import java.nio.charset.Charset;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.AsyncEventBus;
 
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Timer;
-import java.util.TimerTask;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
 
-//import org.apache.commons.configuration;
-//import org.apache.commons.configuration.BaseConfiguration;
-import java.io.IOException;
+import org.apache.commons.configuration.CompositeConfiguration;
+
+import coin.conf.CoinConfiguration;
+import coin.crawler.CoinTarget;
 
 public class Crawler {
-    private String configFile;
-//    private Configuration cfg;
-    private EventBus  eventBus;
+    private static Logger logger = LoggerFactory.getLogger(Crawler.class);
+    private final CoinConfiguration conf;
+    private final EventBus eventBus;
+    private Timer timer;
+    private List<CoinTarget> targets;
 
-    public Crawler() {
-         this.eventBus = new EventBus();
+    protected static final String COIN_TARGET_NAME_PREFIX = "targets.target.name";
+    protected static final String COIN_TARGET_NAME = "targets.target($1).name";
+    protected static final String COIN_TARGET_TYPE = "targets.target($1).type";
+    protected static final String COIN_TARGET_URL = "targets.target($1).url";
+    protected static final String COIN_TARGET_PRICE_SELECTOR = "targets.target($1).latestPriceSelector";
+    protected static final String COIN_TARGET_BUY_SELECTOR = "targets.target($1).buyInSelector";
+    protected static final String COIN_TARGET_SELL_SELECTOR = "targets.target($1).sellOutSelector";
+    protected static final String COIN_TARGET_PLACEHOLDER_LENGTH = "targets.target($1).placeholderLength";
+    protected static final String COIN_TARGET_CRAWLER_INTERVAL = "targets.target($1).interval";
+    
+    public Crawler(CoinConfiguration conf, EventBus eventBus) {
+        this.conf = conf;
+        this.eventBus = eventBus;
+        this.targets = new ArrayList<CoinTarget>();
+        this.timer = new Timer();
+        parseConf();
     }
-
-//    public Crawler(Configuration cfg) {
-//        this.cfg = cfg;
-//    }
-
-//    public Crawler(Configuration cfg, EventBus eventBus) {
-//        this.cfg = cfg;
-//        this.eventBus = eventBus;
-//    }
-
-//    public void setConfiguration(Configuration cfg) {
-//        this.cfg = cfg;
-//    }
-   
-    public void setEventBus(EventBus eventBus) {
-	this.eventBus = eventBus;
-    } 
-
-    public void run( ) {
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
-  	    @Override
-            public void run() {
-		HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
-			@Override
-			public boolean verify(String hostname, SSLSession session)
-			{
-			return true;
-			}
-		});
-		try {
-		    Document doc = Jsoup.connect("https://www.okcoin.com/market.do?symbol=0").userAgent("Mozilla").get();
-		    Elements elements = doc.select("#marketLast");
-                    Data data = new Data();                    
-		    for (Element element : elements) {
-		        System.out.println("最新价格： " + element.text());
-                        data.setLatestPrice(Double.valueOf(element.text()));
-		    }
-		    System.out.println("买入委托");
-		    Elements buyElements = doc.select("div.real-left tbody tr");
-                    List<Trade> buyList = new ArrayList<Trade>();
-		    for (Element element : buyElements) {
-			System.out.println(element.child(1).text().substring(1) + " " + element.child(2).text().substring(1));
-                        Trade trade = new Trade(Double.valueOf(element.child(1).text().substring(1)), Double.valueOf(element.child(2).text().substring(1)));
-                        buyList.add(trade); 
-		    }
-		    System.out.println("卖出委托");
-		    Elements sellElements = doc.select("div.real-right tbody tr");
-                    List<Trade> sellList = new ArrayList<Trade>();
-		    for (Element element : sellElements) {
-                        Trade trade = new Trade(Double.valueOf(element.child(1).text().substring(1)), Double.valueOf(element.child(2).text().substring(1)));
-		    	System.out.println(element.child(1).text().substring(1) + " " + element.child(2).text().substring(1));
-                        sellList.add(trade);
-		    }
-                    data.setBuy(buyList);
-                    data.setSell(sellList);
-                    data.setType("btc");
-                    List<Data> dataList = new ArrayList<Data>();
-                    dataList.add(data);
-                    CoinData coinData = new CoinData("okcoin");
-                    coinData.setData(dataList);
-                    eventBus.post(coinData);
-		} catch (IOException e) {
-		    System.out.println(e.getMessage());
-		}		
-            }
-        }, 0, 1*2*1000);
+ 
+    public void start() {
+    	for (CoinTarget target : targets) {
+    		CrawlerTimerTask  task = new CrawlerTimerTask(target, this.eventBus);
+    		timer.scheduleAtFixedRate(task, 0, target.getInterval() * 1000);	
+    	}
     }
     
-    public static void main(String[] args) {
-        Crawler crawler  = new Crawler(); 
-        crawler.run();
+    private void parseConf() {
+    	CompositeConfiguration crawlerConf = this.conf.getCompositeConfiguration();
+    	String[] targetPrefix = crawlerConf.getStringArray(COIN_TARGET_NAME_PREFIX);
+    	
+    	for (int i = 0; i < targetPrefix.length; ++i) {
+    		String index = String.valueOf(i);
+    		String name = crawlerConf.getString(COIN_TARGET_NAME.replace("$1", index));
+            logger.info("Add target with name {}", name);
+    		String type = crawlerConf.getString(COIN_TARGET_TYPE.replace("$1", index));
+            int interval = Integer.valueOf(crawlerConf.getString(COIN_TARGET_CRAWLER_INTERVAL.replace("$1", index)));
+            String latestPriceSelector = crawlerConf.getString(COIN_TARGET_PRICE_SELECTOR.replace("$1", index));
+            String buyInSelector = crawlerConf.getString(COIN_TARGET_BUY_SELECTOR.replace("$1", index));
+            String sellOutSelector = crawlerConf.getString(COIN_TARGET_SELL_SELECTOR.replace("$1", index));
+            String url  = crawlerConf.getString(COIN_TARGET_URL.replace("$1", index));
+            int placeholderLength = Integer.valueOf(crawlerConf.getString(COIN_TARGET_PLACEHOLDER_LENGTH.replace("$1", index)));
+            
+    		CoinTarget target = new CoinTarget();
+    		target.setBuyInSelector(buyInSelector);
+    		target.setInterval(interval);
+    		target.setLatestPriceSelector(latestPriceSelector);
+    		target.setBuyInSelector(buyInSelector);
+    		target.setSellOutSelector(sellOutSelector);
+    		target.setType(type);
+    		target.setName(name);
+    		target.setUrl(url);
+    		target.setPlaceholderLength(placeholderLength);
+    		targets.add(target);
+    	}
+    }
+    
+    private void setHostVerifier() {
+        HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+            @Override
+            public boolean verify(String hostname, SSLSession session) {
+                return true;
+            }
+        });
     }
 }
