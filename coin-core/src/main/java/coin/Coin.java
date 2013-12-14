@@ -1,13 +1,13 @@
 package coin;
 
 import java.io.File;
-
 import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 
 import javax.management.MBeanServer;
 import javax.management.MBeanServerFactory;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -93,15 +93,24 @@ public class Coin {
         logger.info("Attempting to start Coin server...");
         CoinConfiguration conf = new CoinConfiguration();
 
+        if (args.length != 2) {
+            logger.error("Please provide the conf file for coin and crawler");
+            System.exit(INVALID_CONF_FILE);
+        }
+
         if (args.length > 0) {
-            String confFile = args[0];
+            String coinProperties = args[0];
+            String crawlerXml = args[1];
             try {
-                conf.loadConf(new File(confFile).toURI().toURL());
+                conf.loadConf(coinProperties, crawlerXml);
             } catch (MalformedURLException e) {
-                logger.error("Could not open configuration file: {}", confFile);
+                logger.error("Could not open configuration file: {}", coinProperties);
                 System.exit(INVALID_CONF_FILE);
+            } catch (ConfigurationException e) {
+                logger.error("Malformed configuration file: {}", coinProperties);
+                System.exit(MALFORMED_CONF_FILE);
             }
-            logger.info("Using configuration file {}", confFile);
+            logger.info("Using configuration file {}", coinProperties);
         }
 
         new Coin(conf).start();
