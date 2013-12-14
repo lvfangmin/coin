@@ -11,7 +11,13 @@ import coin.notify.Notification.DestinationType;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 public class DataPreProcessing {
+    private static final Log logger =
+        LogFactory.getLog(DataPreProcessing.class);
+
     private final CoinConfiguration conf;
     private final EventBus notifyEventBus;
 
@@ -29,10 +35,10 @@ public class DataPreProcessing {
 
     @Subscribe
     public void handleRawData(CoinData data) {
-        Data d = data.getData().get(0);
-        if (d.getLatestPrice() > 1000) {
-            triggerNotify(new Notification("516408755@qq.com", DestinationType.MAIL,
-                "The latest price of " + d.getType() + " is larger than 1000 now."));
+        if (data.getLatestPrice() > 5400) {
+            logger.info("Send notification to 407362048@qq.com");
+            triggerNotify(new Notification("407362048@qq.com", DestinationType.MAIL,
+                "The latest price of " + data.getType() + " is larger than 1000 now."));
         }
     }
 

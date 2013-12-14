@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 
 import coin.conf.CoinConfiguration;
 import coin.data.CoinData;
-import coin.data.Data;
 import coin.data.Trade;
 
 import com.google.common.eventbus.EventBus;
@@ -55,39 +54,31 @@ public class Crawler {
                 try {
                     Document doc = Jsoup.connect("https://www.okcoin.com/market.do?symbol=0").userAgent("Mozilla").get();
                     Elements elements = doc.select("#marketLast");
-                    Data data = new Data();
+                    CoinData data = new CoinData("okcoin", "btc");
                     for (Element element : elements) {
-                        logger.info("��������������� " + element.text());
                         data.setLatestPrice(Double.valueOf(element.text()));
                     }
-                    logger.info("������������");
                     Elements buyElements = doc.select("div.real-left tbody tr");
                     List<Trade> buyList = new ArrayList<Trade>();
                     for (Element element : buyElements) {
-                        logger.info(element.child(1).text().substring(1) + " " + element.child(2).text().substring(1));
+                        logger.debug(element.child(1).text().substring(1) + " " + element.child(2).text().substring(1));
                         Trade trade = new Trade(Double.valueOf(element.child(1).text().substring(1)),
                                                 Double.valueOf(element.child(2).text().substring(1)));
                         buyList.add(trade);
                     }
-                    logger.info("������������");
                     Elements sellElements = doc.select("div.real-right tbody tr");
                     List<Trade> sellList = new ArrayList<Trade>();
                     for (Element element : sellElements) {
                         Trade trade = new Trade(Double.valueOf(element.child(1).text().substring(1)),
                                                 Double.valueOf(element.child(2).text().substring(1)));
-                        logger.info(element.child(1).text().substring(1) + " " + element.child(2).text().substring(1));
+                        logger.debug(element.child(1).text().substring(1) + " " + element.child(2).text().substring(1));
                         sellList.add(trade);
                     }
                     data.setBuy(buyList);
                     data.setSell(sellList);
-                    data.setType("btc");
-                    List<Data> dataList = new ArrayList<Data>();
-                    dataList.add(data);
-                    CoinData coinData = new CoinData("okcoin");
-                    coinData.setData(dataList);
-                    eventBus.post(coinData);
+                    eventBus.post(data);
                 } catch (IOException e) {
-                    logger.info(e.getMessage());
+                    logger.error(e.getMessage());
                 }
             }
         }, 0, 1*2*1000);

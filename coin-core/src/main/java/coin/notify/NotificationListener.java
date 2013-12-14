@@ -1,6 +1,5 @@
 package coin.notify;
 
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -13,9 +12,10 @@ import org.slf4j.LoggerFactory;
 import coin.conf.CoinConfiguration;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
-public class NotifyClient{
-    private static final Logger logger = LoggerFactory.getLogger(NotifyClient.class);
+public class NotificationListener {
+    private static final Logger logger = LoggerFactory.getLogger(NotificationListener.class);
     
     private static final int CORE_SIZE = 40;
     private static final int MAX_SIZE = 40;
@@ -28,9 +28,8 @@ public class NotifyClient{
     private boolean closed = true;
     
     private Sender mailSender = null;
-    private NotifyListener notifyListener = null;
     
-    public NotifyClient(EventBus eventBus, CoinConfiguration coinConfig){
+    public NotificationListener(EventBus eventBus, CoinConfiguration coinConfig){
         this.eventBus = eventBus;
         this.coinConfig = coinConfig;
         init();
@@ -48,8 +47,7 @@ public class NotifyClient{
     }
 
     private void initListener() {
-        notifyListener = new NotifyListener(this);
-        this.eventBus.register(notifyListener);
+        this.eventBus.register(this);
     }
 
     public boolean shutdown() {
@@ -125,4 +123,9 @@ public class NotifyClient{
         }
     }
 
+    @Subscribe
+    public void receiveNotifyEvent(Notification notification){
+        logger.info("Receive a notifycation" );
+        send(notification);
+    }
 }
