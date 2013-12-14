@@ -22,6 +22,12 @@
 		<project.libdir>${basedir}/lib</project.libdir>
 	</properties>
 	<dependencies>
+		<!-- Customer Lib Packages -->
+        <dependency>
+			<groupId>coin</groupId>
+			<artifactId>redis_lib</artifactId>
+			<version>1.0</version>
+		</dependency>
 		<!-- Common Utils Packages -->
 		<dependency>
 			<groupId>commons-configuration</groupId>

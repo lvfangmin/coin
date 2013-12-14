@@ -1,10 +1,17 @@
 package coin.subscription;
 
-import java.util.List;
+import java.util.Set;
+
+import coin.conf.CoinConfiguration;
+import coin.redis.data.UserData;
 
 public interface SubscriptionManager {
 
-    public List<User> query(String key);
+    public void init(CoinConfiguration conf);
+
+    public Set<String> query(String key);
+
+    public UserData get(String uid);
 
     public void update(String key, User user);
 }

@@ -2,28 +2,40 @@ package coin.subscription.redis;
 
 import java.util.List;
 
-import redis.clients.jedis.Jedis;
+import java.util.Set;
 
 import coin.conf.CoinConfiguration;
+import coin.redis.Contant;
+import coin.redis.RedisConf;
+import coin.redis.RedisInstance;
 import coin.subscription.SubscriptionManager;
 import coin.subscription.User;
+import coin.redis.data.UserData;
 
 public class RedisSubscriptionManager implements SubscriptionManager {
     private CoinConfiguration conf;
-    private Jedis jedis;
+    private RedisInstance redis;
 
+    @Override
     public void init(CoinConfiguration conf) {
         this.conf = conf;
         // TODO: Read host from conf
-        this.jedis = new Jedis("localhost");
+        RedisConf redisConf = new RedisConf("localhost");
+        RedisInstance.init(redisConf);
+        redis = RedisInstance.getInstance();
     }
 
     public void start() {
     }
 
     @Override
-    public List<User> query(String key) {
-        return null;
+    public Set<String> query(String key) {
+        return redis.getUids(key);
+    }
+
+    @Override
+    public UserData get(String uid) {
+        return redis.getUser(uid);
     }
 
     @Override

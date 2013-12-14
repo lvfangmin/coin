@@ -15,11 +15,18 @@ import com.google.common.eventbus.EventBus;
 import coin.conf.CoinConfiguration;
 import coin.data.DataPreProcessing;
 import coin.notify.NotificationListener;
+import coin.rule.PriceRule.GEPriceRule;
+import coin.rule.PriceRule.LEPriceRule;
+import coin.subscription.SubscriptionManager;
+import coin.subscription.redis.RedisSubscriptionManager;
 import coin.crawler.Crawler;
 
 public class Coin {
 
     static Logger logger = LoggerFactory.getLogger(Coin.class);
+
+    public static final String GEPRICERULE = "1";
+    public static final String LEPRICERULE = "2";
 
     public static final int INVALID_CONF_FILE = 1;
     public static final int MALFORMED_CONF_FILE = 2;
@@ -30,6 +37,7 @@ public class Coin {
     NotificationListener notifyListener;
     Crawler crawler;
     DataPreProcessing dpp;
+    SubscriptionManager sm;
     MBeanServer mBeanServer;
 
     final ThreadGroup tg;
@@ -58,9 +66,13 @@ public class Coin {
                 // TODO: Init Notify layer
                 notifyListener = new NotificationListener(conf, notifyEventBus);
                 // TODO: Init Persistence layer
+                sm = new RedisSubscriptionManager();
+                sm.init(conf);
                 // TODO: Init Rule engine layer
                 // TODO: Init Data pre processing layer
-                dpp = new DataPreProcessing(conf, notifyEventBus).registerTo(dataEventBus);
+                dpp = new DataPreProcessing(conf, notifyEventBus, sm).registerTo(dataEventBus);
+                dpp.addRule(new GEPriceRule(GEPRICERULE));
+                dpp.addRule(new LEPriceRule(LEPRICERULE));
                 // TODO: Init Crawler layer
                 crawler = new Crawler(conf, dataEventBus);
                 crawler.start();

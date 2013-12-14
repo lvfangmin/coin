@@ -1,31 +1,41 @@
 package coin.data;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 
 import coin.conf.CoinConfiguration;
-
 import coin.notify.Notification;
 import coin.notify.Notification.DestinationType;
+import coin.rule.PriceRule;
+import coin.subscription.SubscriptionManager;
+import coin.redis.data.UserData;
 
 import javax.annotation.Nonnull;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataPreProcessing {
-    private static final Log logger =
-        LogFactory.getLog(DataPreProcessing.class);
+    private static final Logger logger = LoggerFactory.getLogger(DataPreProcessing.class);
 
     private final CoinConfiguration conf;
     private final EventBus notifyEventBus;
+    private final SubscriptionManager sm;
+    private final Set<PriceRule> rules;
 
-    public DataPreProcessing(@Nonnull CoinConfiguration conf, @Nonnull EventBus notifyEventBus) {
+    public DataPreProcessing(@Nonnull CoinConfiguration conf, @Nonnull EventBus notifyEventBus,
+                             @Nonnull SubscriptionManager sm) {
         Preconditions.checkNotNull(conf, "Configuration file should not be null");
         Preconditions.checkNotNull(notifyEventBus, "Notify event bus should not be null");
+        Preconditions.checkNotNull(sm, "Subscription manager should not be null");
         this.conf = conf;
         this.notifyEventBus = notifyEventBus;
+        this.sm = sm;
+        this.rules = new HashSet<PriceRule>();
     }
 
     public DataPreProcessing registerTo(EventBus dataEventBus) {
@@ -33,20 +43,24 @@ public class DataPreProcessing {
         return this;
     }
 
+    public void addRule(PriceRule rule) {
+        rules.add(rule); 
+    }
+
     @Subscribe
     public void handleRawData(CoinData data) {
         double price = data.getLatestPrice();
-        double alertPrice = 0.0;
-        if (data.getType().equals("btc")) {
-            alertPrice = 5450;
-        } else {
-            alertPrice = 190;
-        }
 
-        if (price < alertPrice) {
-            logger.info("Send notification to 124083308@qq.com, latest price is " + price);
-            triggerNotify(new Notification("124083308@qq.com", DestinationType.MAIL,
-                "The latest price of " + data.getType() + " is less than your subscription price, current price " + price));
+        for (PriceRule rule : rules) {
+            Set<String> uids = sm.query(rule.getRuleId());
+            for (String uid : uids) {
+                UserData user = sm.get(uid);
+                if (rule.meet(user, price, data.getType())) {
+                    logger.info("Send notification to {}, latest price is {}", uid, price);
+                    triggerNotify(new Notification(user.email, DestinationType.MAIL,
+                            "The latest price of " + data.getType() + " is meet your subscription price, current price " + price));   
+                }
+            }
         }
     }
 
