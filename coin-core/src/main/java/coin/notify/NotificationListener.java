@@ -104,13 +104,13 @@ public class NotificationListener {
         public void run() {
             try {
                 sender.send(notification.getDestination(), notification.getContent());
-                logger.info("Notify successed");
             } catch (Exception ex) {
-                logger.error("Notify failed");
+                logger.error("Failed to send notification to {}", notification.getDestination());
             }
         }
     }
 
+    @Subscribe
     public void send(Notification notification) {
         if(!this.closed&&notification.getDestinationType().equals(Notification.DestinationType.MAIL)){
             this.executor.execute(new NotifyTask(this.mailSender,notification));
@@ -121,11 +121,5 @@ public class NotificationListener {
         else{
             logger.error("Unsupported channel!");
         }
-    }
-
-    @Subscribe
-    public void receiveNotifyEvent(Notification notification){
-        logger.info("Receive a notifycation" );
-        send(notification);
     }
 }

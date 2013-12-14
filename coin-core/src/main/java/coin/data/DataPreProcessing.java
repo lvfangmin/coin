@@ -35,10 +35,11 @@ public class DataPreProcessing {
 
     @Subscribe
     public void handleRawData(CoinData data) {
-        if (data.getLatestPrice() > 5400) {
-            logger.info("Send notification to 407362048@qq.com");
-            triggerNotify(new Notification("407362048@qq.com", DestinationType.MAIL,
-                "The latest price of " + data.getType() + " is larger than 1000 now."));
+        double price = data.getLatestPrice();
+        if (price > 5500) {
+            logger.info("Send notification to 124083308@qq.com, latest price is " + price);
+            triggerNotify(new Notification("124083308@qq.com", DestinationType.MAIL,
+                "The latest price of " + data.getType() + " is larger than your subscription price, current price " + price));
         }
     }
 

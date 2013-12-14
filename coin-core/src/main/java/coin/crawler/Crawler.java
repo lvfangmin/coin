@@ -81,6 +81,6 @@ public class Crawler {
                     logger.error(e.getMessage());
                 }
             }
-        }, 0, 1*2*1000);
+        }, 0, 1*10*1000);
     }
 }

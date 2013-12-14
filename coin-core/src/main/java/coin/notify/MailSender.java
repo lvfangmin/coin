@@ -67,7 +67,7 @@ public class MailSender implements Sender {
             message.setSubject("TrusCoins notify");
             message.setText("Dear, \n\n " + content);
             Transport.send(message);
-            logger.info("Send mail to " + mailbox + "successfully!");
+            logger.info("Successfully sent mail to {}.", mailbox);
 
         } catch (MessagingException e) {
             logger.error("Failed to send mail to " + mailbox);
