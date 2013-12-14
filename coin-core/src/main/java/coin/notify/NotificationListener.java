@@ -1,5 +1,6 @@
 package coin.notify;
 
+import java.io.File;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -52,7 +53,10 @@ public class NotificationListener {
     
     private void initSender() {
         mailSender = new MailSender();
-        template = StringUtil.readToString(coinConfig.getCompositeConfiguration().getString("mail.template"));
+        String file = new File(".").getAbsolutePath() + coinConfig.getCompositeConfiguration().getString("mail.template");
+        logger.info("file path:" + file);
+        template = StringUtil.readToString(file);
+        logger.info("file content" + template);
     }
 
     private void initListener() {
