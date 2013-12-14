@@ -8,9 +8,9 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
-import coin.data.RegisterData;
-import coin.data.ResponseData;
-import coin.database.RedisInstance;
+import coin.redis.RedisInstance;
+import coin.redis.data.RegisterData;
+import coin.redis.data.ResponseData;
 
 @Path("user")
 public class User {
