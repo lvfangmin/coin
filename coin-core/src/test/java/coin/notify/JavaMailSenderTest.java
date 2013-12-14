@@ -7,7 +7,7 @@ public class JavaMailSenderTest {
     @Test
     public void test() {
         MailSender ms = new MailSender();
-        ms.send(null, null);
+        ms.send("407362048@qq.com", "Test OK!");
     }
 
 }
