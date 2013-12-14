@@ -1,21 +1,19 @@
 package coin.crawler;
 
 import org.jsoup.Jsoup;
-import org.jsoup.helper.Validate;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import java.nio.charset.Charset;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import coin.conf.CoinConfiguration;
 import coin.data.CoinData;
 import coin.data.Data;
 import coin.data.Trade;
 
 import com.google.common.eventbus.EventBus;
-import com.google.common.eventbus.AsyncEventBus;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -25,9 +23,6 @@ import java.util.TimerTask;
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLSession;
-
-
-
 //import org.apache.commons.configuration;
 //import org.apache.commons.configuration.BaseConfiguration;
 import java.io.IOException;

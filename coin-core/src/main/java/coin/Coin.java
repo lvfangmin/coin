@@ -26,6 +26,7 @@ public class Coin {
 
     CoinConfiguration conf;
     EventBus dataEventBus;
+    EventBus notifyEventBus;
     DataPreProcessing dpp;
     MBeanServer mBeanServer;
 
@@ -51,14 +52,15 @@ public class Coin {
             @Override
             public void run() {
                 dataEventBus = new EventBus("Data Event Bus");
+                notifyEventBus = new EventBus("Notify Event Bus");
                 // TODO: Init Notify layer
                 // TODO: Init Persistence layer
                 // TODO: Init Rule engine layer
                 // TODO: Init Data pre processing layer
-                dpp = new DataPreProcessing(conf).register(dataEventBus);
+                dpp = new DataPreProcessing(conf, notifyEventBus).registerTo(dataEventBus);
                 // TODO: Init Crawler layer
-                Crawler crawler = new Crawler();
-                crawler.run();
+                Crawler crawler = new Crawler(conf, dataEventBus);
+                crawler.start();
                 // TODO: Init jmx
                 try {
                     mBeanServer = ManagementFactory.getPlatformMBeanServer();
