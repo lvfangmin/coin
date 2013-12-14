@@ -68,7 +68,7 @@ public class CrawlerTimerTask extends TimerTask {
 
     @Override
     public void run() {
-        Data data = fetchData();
+        CoinData data = fetchData();
         eventBus.post(data); 
     }
 }
