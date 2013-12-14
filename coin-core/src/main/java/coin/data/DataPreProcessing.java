@@ -1,18 +1,49 @@
 package coin.data;
 
+import com.google.common.base.Preconditions;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import coin.conf.CoinConfiguration;
 
-public class DataPreProcessing {
-    private final CoinConfiguration conf;
+import coin.notify.Notification;
+import coin.notify.Notification.DestinationType;
 
-    public DataPreProcessing(CoinConfiguration conf) {
+import javax.annotation.Nonnull;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+public class DataPreProcessing {
+    private static final Log logger =
+        LogFactory.getLog(DataPreProcessing.class);
+
+    private final CoinConfiguration conf;
+    private final EventBus notifyEventBus;
+
+    public DataPreProcessing(@Nonnull CoinConfiguration conf, @Nonnull EventBus notifyEventBus) {
+        Preconditions.checkNotNull(conf, "Configuration file should not be null");
+        Preconditions.checkNotNull(notifyEventBus, "Notify event bus should not be null");
         this.conf = conf;
+        this.notifyEventBus = notifyEventBus;
     }
 
-    public DataPreProcessing register(EventBus dataEventBus) {
+    public DataPreProcessing registerTo(EventBus dataEventBus) {
         dataEventBus.register(this);
         return this;
+    }
+
+    @Subscribe
+    public void handleRawData(CoinData data) {
+        double price = data.getLatestPrice();
+        if (price > 5500) {
+            logger.info("Send notification to 124083308@qq.com, latest price is " + price);
+            triggerNotify(new Notification("124083308@qq.com", DestinationType.MAIL,
+                "The latest price of " + data.getType() + " is larger than your subscription price, current price " + price));
+        }
+    }
+
+    void triggerNotify(@Nonnull Notification message) {
+        notifyEventBus.post(message);
     }
 }

@@ -1,6 +1,5 @@
 package coin;
 
-import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.net.MalformedURLException;
 
@@ -15,6 +14,7 @@ import com.google.common.eventbus.EventBus;
 
 import coin.conf.CoinConfiguration;
 import coin.data.DataPreProcessing;
+import coin.notify.NotificationListener;
 import coin.crawler.Crawler;
 
 public class Coin {
@@ -26,6 +26,9 @@ public class Coin {
 
     CoinConfiguration conf;
     EventBus dataEventBus;
+    EventBus notifyEventBus;
+    NotificationListener notifyListener;
+    Crawler crawler;
     DataPreProcessing dpp;
     MBeanServer mBeanServer;
 
@@ -51,14 +54,16 @@ public class Coin {
             @Override
             public void run() {
                 dataEventBus = new EventBus("Data Event Bus");
+                notifyEventBus = new EventBus("Notify Event Bus");
                 // TODO: Init Notify layer
+                notifyListener = new NotificationListener(notifyEventBus, conf);
                 // TODO: Init Persistence layer
                 // TODO: Init Rule engine layer
                 // TODO: Init Data pre processing layer
-                dpp = new DataPreProcessing(conf).register(dataEventBus);
+                dpp = new DataPreProcessing(conf, notifyEventBus).registerTo(dataEventBus);
                 // TODO: Init Crawler layer
-                Crawler crawler = new Crawler();
-                crawler.run();
+                crawler = new Crawler(conf, dataEventBus);
+                crawler.start();
                 // TODO: Init jmx
                 try {
                     mBeanServer = ManagementFactory.getPlatformMBeanServer();
@@ -85,7 +90,7 @@ public class Coin {
         // TODO: Stop Data pre processing layer
         // TODO: Stop Rule engine layer
         // TODO: Stop Persistence layer
-        // TODO: Stop Notify layer
+        notifyListener.shutdown();
         logger.info("Successfully shutdown Coin server.");
     }
 
