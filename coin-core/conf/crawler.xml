@@ -3,7 +3,7 @@
     <targets>
         <target>
                <name>okcoin</name>
-               <interval>60</interval>
+               <interval>300</interval>
                <type>btc</type>
                <url>https://www.okcoin.com/market.do?symbol=0</url>
                <latestPriceSelector>#marketLast</latestPriceSelector>
@@ -13,7 +13,7 @@
         </target>
         <target>
                <name>okcoin</name>
-               <interval>60</interval>
+               <interval>300</interval>
                <type>ltc</type>
                <url>https://www.okcoin.com/market.do?symbol=1</url>
                <latestPriceSelector>#marketLast</latestPriceSelector>

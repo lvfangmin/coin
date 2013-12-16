@@ -89,8 +89,8 @@ else
     add_maven_deps_to_classpath
 fi
 
-JMXREMOTE_PORT=${JMXREMOTE_PORT:-8007}
-JPDA_PORT=${JPDA_PORT:-1099}
+JMXREMOTE_PORT=${JMXREMOTE_PORT:-8107}
+JPDA_PORT=${JPDA_PORT:-1199}
 JPDA_SUSPEND=${JPDA_SUSPEND:-n}
 
 JMX_ARGS="-Dcom.sun.management.jmxremote.port=${JMXREMOTE_PORT} -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false"
