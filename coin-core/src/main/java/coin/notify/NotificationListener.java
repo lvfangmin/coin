@@ -118,7 +118,7 @@ public class NotificationListener {
             try {
                 sender.send(notification.getDestination(), template.replace("$(content)", notification.getContent()));
             } catch (Exception ex) {
-                logger.error("Failed to send notification to {}", notification.getDestination());
+                logger.error("Failed to send notification to {}, {}", notification.getDestination(), ex);
             }
         }
     }

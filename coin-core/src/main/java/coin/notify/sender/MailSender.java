@@ -17,7 +17,7 @@ public class MailSender implements Sender {
 
     private static final Logger logger = LoggerFactory.getLogger(MailSender.class);
 
-    private static final String DEFAULT_USER_NAME = "truecoins1@gmail.com";
+    private static final String DEFAULT_USER_NAME = "truecoins@gmail.com";
     private static final String DEFAULT_PASSWORD = "passwordcoin";
 
     private static final AuthType DEFAULT_AUTH_TYPE = AuthType.TLS;
