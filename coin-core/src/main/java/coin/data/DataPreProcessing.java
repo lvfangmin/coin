@@ -53,8 +53,13 @@ public class DataPreProcessing {
 
         for (PriceRule rule : rules) {
             Set<String> uids = sm.query(rule.getRuleId());
+            if (uids == null) {
+                continue;
+            }
+            logger.info("uids for rule id {}: {}", rule.getRuleId(), uids);
             for (String uid : uids) {
                 UserData user = sm.get(uid);
+                logger.info("User data for uid {}: {}", uid, user);
                 if (rule.meet(user, price, data.getType())) {
                     logger.info("Send notification to {}, latest price is {}", uid, price);
                     triggerNotify(new Notification(user.email, DestinationType.MAIL,
