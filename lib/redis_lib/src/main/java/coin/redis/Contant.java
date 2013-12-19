@@ -9,7 +9,7 @@ public class Contant {
     public final static String UID_PATTERN = "uid:$1";
     public final static String EMAIL = "email";
     public final static String PWD = "pwd";
-    public final static String RULE = "rule";
+    public final static String RULE = "rule_id:$1";
     public final static String PARAM = "param";
 
     public final static String RULE_SET = "global:rule:$1";
