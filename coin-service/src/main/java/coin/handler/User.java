@@ -10,6 +10,7 @@ import javax.ws.rs.core.MediaType;
 
 import coin.redis.RedisInstance;
 import coin.redis.data.ResponseData;
+import coin.redis.data.UserDBData;
 import coin.redis.data.UserData;
 
 @Path("user")
@@ -34,12 +35,22 @@ public class User {
         return RedisInstance.getInstance().subscribe(registerData);
 
     }
+    
+    @Path("/unsubscribe")
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResponseData unsubscribe(UserData registerData) {
+        // TODO input validation
+        return RedisInstance.getInstance().unsubscribe(registerData);
+
+    }
 
     @Path("/query/{uid}")
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public UserData query(@PathParam("uid") String uid) {
+    public UserDBData query(@PathParam("uid") String uid) {
         // TODO input validation
-        return RedisInstance.getInstance().query(uid);
+        return RedisInstance.getInstance().getUser(uid);
     }
 }
