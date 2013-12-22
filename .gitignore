@@ -2,6 +2,7 @@
 .classpath
 *.class
 *.jar
+.DS_Store
 
 *.pid
 logs/
