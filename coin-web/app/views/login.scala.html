@@ -1,0 +1,44 @@
+@(form: Form[(String,String)])(implicit flash: Flash)
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="@routes.Assets.at("images/favicon.png")">
+    <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/signin.css")">
+    <link rel="stylesheet" type="text/css" media="screen" href="@routes.Assets.at("stylesheets/bootstrap.min.css")">
+    <title>Signin for Coin</title>
+  </head>
+  <body>
+    <div class="container">
+        @helper.form(routes.Login.authenticate, 'class -> "form-signin") {
+        <h2 class="form-signin-heading">Please Sign In</h2>
+        @form.globalError.map { error =>
+            <p class="error">
+                @error.message
+            </p>
+        }
+            
+        @flash.get("success").map { message =>
+            <p class="success">
+                @message
+            </p>
+        }
+
+        <p>
+            <input type="email" class="form-control" name="email" placeholder="Email" id="email" value="@form("email").value">
+        </p>
+        <p>
+            <input type="password" class="form-control" name="password" id="password" placeholder="Password">
+        </p>
+        <label class="checkbox">
+          <input type="checkbox" value="remember-me"> Remember me
+        </label>
+        <p>
+            <button type="submit" class="btn btn-lg btn-primary btn-block" id="loginbutton">Login</button>
+        </p>
+      }
+    </div>
+  </body>
+</html>

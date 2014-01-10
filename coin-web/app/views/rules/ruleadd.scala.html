@@ -1,0 +1,11 @@
+@(username: String, rule: Int)
+
+@main("Add Rule") {
+  <div class="panel panel-success">
+    <div class="panel-heading"><h3>Rule @rule</h3></div>
+  </div>
+  @helper.form(routes.Rule.save) {
+    The price of <input type="text" id="cointype" name="cointype"></br> is larger than <input type="text" id="coinvalue" name="coinvalue"></br>
+    <button type="submit" class="btn btn-lg btn-primary btn-block" id="save">Save</button>
+  }
+}

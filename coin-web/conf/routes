@@ -5,7 +5,21 @@
 # Home page
 GET     /                           controllers.Application.index
 
-GET     /subscriptions                        controllers.Application.subscriptions
+GET     /loginsimple                controllers.Login.index
+
+GET     /subscriptions              controllers.Application.subscriptions
+
+GET     /auth                       controllers.Login.authenticate
+
+GET     /dashboard                  controllers.Dashboard.index
+
+GET     /rule/:rule                 controllers.Rule.index(rule: Int)
+
+GET     /rulelist                   controllers.Rule.list
+
+GET     /ruleadd/:rule              controllers.Rule.add(rule: Int)
+
+GET     /save                       controllers.Rule.save
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
@@ -30,3 +44,5 @@ POST    /password                   securesocial.controllers.PasswordChange.hand
 GET     /authenticate/:provider     securesocial.controllers.ProviderController.authenticate(provider)
 POST    /authenticate/:provider     securesocial.controllers.ProviderController.authenticateByPost(provider)
 GET     /not-authorized             securesocial.controllers.ProviderController.notAuthorized
+
+GET     /race controllers.Race.index()
