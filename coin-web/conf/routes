@@ -5,23 +5,17 @@
 # Home page
 GET     /                           controllers.Application.index
 
-GET     /loginsimple                controllers.Login.index
+GET     /login                      controllers.Login.index
 
-GET     /subscriptions              controllers.Application.subscriptions
+POST    /authenticate               controllers.Login.authenticate
 
-GET     /auth                       controllers.Login.authenticate
+GET     /rules/templates            controllers.Rule.templates
 
-GET     /dashboard                  controllers.Dashboard.index
+GET     /rules/clone/:id            controllers.Rule.template(id: Int)
 
-GET     /rule/:rule                 controllers.Rule.index(rule: Int)
+GET     /rules/:id                  controllers.Rule.index(id: Int)
 
-GET     /rulelist                   controllers.Rule.list
-
-GET     /ruleadd/:rule              controllers.Rule.add(rule: Int)
-
-GET     /save                       controllers.Rule.save
+POST    /save/:id                   controllers.Rule.save(id: Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
-
-GET     /race controllers.Race.index()

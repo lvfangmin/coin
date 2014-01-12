@@ -13,8 +13,6 @@ object Application extends Controller with Secured {
       Ok(html.dashboard(username, List(1, 2, 3)))
     }.getOrElse(Forbidden)
   }
-
-  def subscriptions = TODO
 }
 
 trait Secured {
