@@ -9,10 +9,9 @@ import views._
 object Application extends Controller with Secured {
 
   def index = IsAuthenticated { username => request =>
-    User.findByEmail(username).map { user =>
-      Ok(html.dashboard(username, List(1, 2, 3)))
-    }.getOrElse(Forbidden)
+    Ok(html.dashboard(username, User.getSubscriptions(username)))
   }
+
 }
 
 trait Secured {

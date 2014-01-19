@@ -8,6 +8,6 @@ import views._
 
 object Dashboard extends Controller {
   def index = Action { implicit request =>
-    Ok(html.dashboard("lvfm", List(1, 2, 3, 4)))
+    Ok(html.dashboard("lvfm", Set("1")))
   }
 }

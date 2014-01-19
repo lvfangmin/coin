@@ -6,15 +6,23 @@ import play.api.data._
 import play.api.data.Forms._
 
 import play.api.cache._
-import play.api.Play.current
-import com.typesafe.plugin.RedisPlugin
 
 import play.Logger
 
 import models._
 import views._
+import persist.Redis
+import common._
+import scala.collection.JavaConversions._
 
-object Rule extends Controller with Secured {
+import scala.collection.mutable.HashMap
+
+object Rule extends Controller with Secured with Redis {
+
+  val rule1 = RuleTemplate("1", "BTC UPPER BOUND", "alert when btc price is larger than the dedicated price")
+  val rule2 = RuleTemplate("2", "BTC LOWER BOUND", "alert when btc price is less than the dedicated price")
+  val predefinedTemplates = List(rule1, rule2)
+  val rulesMap = Map("1" -> rule1, "2" -> rule2)
 
   val ruleForm = Form(
     tuple(
@@ -26,31 +34,37 @@ object Rule extends Controller with Secured {
   )
 
   def templates() = IsAuthenticated { username => implicit request =>
-    Ok(html.rule.templates())
+      Ok(html.rule.templates(predefinedTemplates))
   }
 
-  def template(rule: Int) = IsAuthenticated { username => implicit request =>
-    Ok(html.rule.template(rule))
+  def template(ruleId: String) = IsAuthenticated { username => implicit request =>
+      Ok(html.rule.template(rulesMap(ruleId)))
   }
 
-  def index(id: Int) = IsAuthenticated { username => _ =>
+  def index(id: String) = IsAuthenticated { username => _ =>
     Ok(html.rule.ruleview(username, id))
   }
 
-  def saveToDB(cointype: String, value: String) {
-    val client = new RedisPlugin(current).jedisPool.getResource()
-    client.set(cointype, value)
-    //Cache.set(cointype, value)
+  def saveToDB(ruleId: String, price: String, username: String) {
+  /*
+    redis.withJedisClient { implicit client =>
+      Logger.info("values in db {}", client.get(cointype))
+    }
     Logger.info("Save to db {}, {}", cointype, value)
-    Logger.info("values in db {}", client.get(cointype))
+  */
   }
 
-  def save(id: Int) = IsAuthenticated { username => implicit request =>
+  def save(ruleId: String) = IsAuthenticated { username => implicit request =>
+    Logger.info("Here is save authen")
     ruleForm.bindFromRequest().fold(
-      formWithError => BadRequest(html.rule.template(id)),
+      formWithError => BadRequest(html.rule.template(rulesMap(ruleId))),
       ruleInfo => {
-        saveToDB(ruleInfo._1, ruleInfo._2)
-        Ok(html.dashboard(username, List(1, 2, 3, 5)))
+        Logger.info("Here is save")
+        Subscription.subscribe(ruleId, username, ruleInfo._2)
+        Subscription.getSubscriptions(username) map { sub =>
+          Logger.info("found subscription with {}", sub) 
+        }
+        Ok(html.dashboard(username, Subscription.getSubscriptions(username)))
       }
     )
   }

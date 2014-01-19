@@ -5,17 +5,21 @@
 # Home page
 GET     /                           controllers.Application.index
 
+GET     /regist                     controllers.Registration.index
+
+POST    /reg                        controllers.Registration.regist
+
 GET     /login                      controllers.Login.index
 
 POST    /authenticate               controllers.Login.authenticate
 
 GET     /rules/templates            controllers.Rule.templates
 
-GET     /rules/clone/:id            controllers.Rule.template(id: Int)
+GET     /rules/clone/:template      controllers.Rule.template(template)
 
-GET     /rules/:id                  controllers.Rule.index(id: Int)
+GET     /rules/:id                  controllers.Rule.index(id: String)
 
-POST    /save/:id                   controllers.Rule.save(id: Int)
+POST    /save/:id                   controllers.Rule.save(id: String)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)
