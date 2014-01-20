@@ -26,6 +26,8 @@ public class DataPreProcessing {
     private final EventBus notifyEventBus;
     private final SubscriptionManager sm;
     private final Set<PriceRule> rules;
+    private int previousBTCPrice = 0;
+    private int previousLTCPrice = 0;
 
     public DataPreProcessing(@Nonnull CoinConfiguration conf, @Nonnull EventBus notifyEventBus,
                              @Nonnull SubscriptionManager sm) {
@@ -44,28 +46,56 @@ public class DataPreProcessing {
     }
 
     public void addRule(PriceRule rule) {
-        rules.add(rule); 
+        rules.add(rule);
+    }
+
+    private void sendNotifications(int ruleId, String type, int price) {
+        String rp = "rid:" + ruleId + ":price:" + price;
+        Set<String> uidsids = sm.query(rp);
+        for (String uidsid: uidsids) {
+            String[] us = uidsid.split(":");
+            String uid = us[0];
+            String sid = us[1];
+            logger.info("Send notification to {}, latest price is {}", uid, price);
+            triggerNotify(new Notification(sm.get(uid), DestinationType.MAIL,
+                    "The latest price of " + type + " is meet your subscription price, current price " + price));
+
+            sm.getJedis().srem(rp, uidsid);
+            sm.getJedis().del("uid:" + uid + ":sid:" + sid);
+            sm.getJedis().srem("uid" + uid + ":subscriptions", sid);
+
+        }
     }
 
     @Subscribe
     public void handleRawData(CoinData data) {
-        double price = data.getLatestPrice();
+        int price = (int)data.getLatestPrice();
 
-        for (PriceRule rule : rules) {
-            Set<String> uids = sm.query(rule.getRuleId());
-            if (uids == null) {
-                continue;
+        int ruleId = 1;
+        String type = data.getType();
+
+        if (type.equals("btc") && previousBTCPrice > 0) {
+            if (price > previousBTCPrice) {
+                ruleId = 1;
+            } else {
+                ruleId = 2;
             }
-            logger.info("uids for rule id {}: {}", rule.getRuleId(), uids);
-            for (String uid : uids) {
-                UserData user = sm.get(uid);
-                logger.info("User data for uid {}: {}", uid, user);
-                if (rule.meet(user, price, data.getType())) {
-                    logger.info("Send notification to {}, latest price is {}", uid, price);
-                    triggerNotify(new Notification(user.email, DestinationType.MAIL,
-                            "The latest price of " + data.getType() + " is meet your subscription price, current price " + price));   
-                }
+            sendNotifications(ruleId, type, price);
+        }
+
+        if (type.equals("ltc") && previousLTCPrice > 0) {
+            if (price > previousLTCPrice) {
+                ruleId = 3;
+            } else {
+                ruleId = 4;
             }
+            sendNotifications(ruleId, type, price);
+        }
+
+        if (type.equals("btc")) {
+            previousBTCPrice = price;
+        } else {
+            previousLTCPrice = price; 
         }
     }
 

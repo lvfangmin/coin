@@ -1,6 +1,10 @@
 package coin.notify.sender;
 
+import java.util.ArrayList;
+
+import java.util.List;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.mail.Message;
 import javax.mail.MessagingException;
@@ -25,7 +29,9 @@ public class MailSender implements Sender {
     private String username = DEFAULT_USER_NAME;
     private String password = DEFAULT_PASSWORD;
     private AuthType authType = DEFAULT_AUTH_TYPE;
+    private List<Session> sessions = new ArrayList<Session>();
     private Session session = null;
+    private AtomicLong rr = new AtomicLong(0);
 
     private Properties props = new Properties();
 
@@ -56,12 +62,24 @@ public class MailSender implements Sender {
                 return new PasswordAuthentication(username, password);
             }
         });
+
+        sessions.add(session);
+
+        for (int i = 1; i < 4; i++) {
+            final int id = i;
+            sessions.add(Session.getInstance(props, new javax.mail.Authenticator() {
+                protected PasswordAuthentication getPasswordAuthentication() {
+                    return new PasswordAuthentication("truecoins" + id + "@gmail.com", password);
+                }
+            }));
+        }
     }
 
     @Override
     public boolean send(String mailbox, String content) {
         try {
-            Message message = new MimeMessage(session);
+            int id = (int)(rr.getAndIncrement() % sessions.size());
+            Message message = new MimeMessage(sessions.get(id));
             message.setFrom(new InternetAddress(username));
             message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(mailbox));
             message.setSubject("TrusCoins notify");
