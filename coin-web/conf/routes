@@ -17,9 +17,11 @@ GET     /rules/templates            controllers.Rule.templates
 
 GET     /rules/clone/:template      controllers.Rule.template(template)
 
-GET     /rules/:id                  controllers.Rule.index(id: String)
+GET     /rules/:uid/:sid/:rid/:price    controllers.Rule.index(uid, sid, rid, price)
 
 POST    /save/:id                   controllers.Rule.save(id: String)
+
+GET     /delete/:uid/:sid/:rid/:price   controllers.Rule.delete(uid, sid, rid, price)
 
 # Map static resources from the /public folder to the /assets URL path
 GET     /assets/*file               controllers.Assets.at(path="/public", file)

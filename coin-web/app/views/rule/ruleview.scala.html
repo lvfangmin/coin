@@ -1,5 +1,10 @@
-@(username: String, rule: String)
+@(username: String, rule: (String, String, String, String))
 
-@main("Rule @rule") {
-    hello @username, here is the @rule
+@main("Rule Management") {
+  <div class="panel panel-success">
+    <div class="panel-heading"><h3>Rule @rule._3 Price @rule._4</h3></div>
+    <div class="panel-body">
+        <a class="alignright" href="@routes.Rule.delete(rule._1, rule._2, rule._3, rule._4)"><button type="button" class="btn btn-success btn-lg">Delete Rule</button></a>
+    </div>
+  </div>
 }

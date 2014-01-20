@@ -21,17 +21,12 @@ object Rule extends Controller with Secured with Redis {
 
   val rule1 = RuleTemplate("1", "BTC UPPER BOUND", "alert when btc price is larger than the dedicated price")
   val rule2 = RuleTemplate("2", "BTC LOWER BOUND", "alert when btc price is less than the dedicated price")
-  val predefinedTemplates = List(rule1, rule2)
-  val rulesMap = Map("1" -> rule1, "2" -> rule2)
+  val rule3 = RuleTemplate("3", "LTC UPPER BOUND", "alert when ltc price is larger than the dedicated price")
+  val rule4 = RuleTemplate("4", "LTC LOWER BOUND", "alert when ltc price is less than the dedicated price")
+  val predefinedTemplates = List(rule1, rule2, rule3, rule4)
+  val rulesMap = Map("1" -> rule1, "2" -> rule2, "3" -> rule3, "4" -> rule4)
 
-  val ruleForm = Form(
-    tuple(
-      "cointype" -> text,
-      "coinvalue" -> text
-    ) verifying ("Invalid cointype", result => result match {
-      case (cointype, coinvalue) => Coin.isValid(cointype)
-    })
-  )
+  val ruleForm = Form(mapping("price" -> nonEmptyText)(RuleParams.apply)(RuleParams.unapply))
 
   def templates() = IsAuthenticated { username => implicit request =>
       Ok(html.rule.templates(predefinedTemplates))
@@ -41,31 +36,25 @@ object Rule extends Controller with Secured with Redis {
       Ok(html.rule.template(rulesMap(ruleId)))
   }
 
-  def index(id: String) = IsAuthenticated { username => _ =>
-    Ok(html.rule.ruleview(username, id))
-  }
-
-  def saveToDB(ruleId: String, price: String, username: String) {
-  /*
-    redis.withJedisClient { implicit client =>
-      Logger.info("values in db {}", client.get(cointype))
-    }
-    Logger.info("Save to db {}, {}", cointype, value)
-  */
+  def index(uid: String, sid: String, rid: String, price: String) = IsAuthenticated { username => _ =>
+    Ok(html.rule.ruleview(username, (uid, sid, rid, price)))
   }
 
   def save(ruleId: String) = IsAuthenticated { username => implicit request =>
-    Logger.info("Here is save authen")
+    Logger.info("save rule {} to {}", ruleId, username)
     ruleForm.bindFromRequest().fold(
       formWithError => BadRequest(html.rule.template(rulesMap(ruleId))),
-      ruleInfo => {
-        Logger.info("Here is save")
-        Subscription.subscribe(ruleId, username, ruleInfo._2)
-        Subscription.getSubscriptions(username) map { sub =>
-          Logger.info("found subscription with {}", sub) 
-        }
+      ruleParams => {
+        Subscription.subscribe(ruleId, username, ruleParams.price)
         Ok(html.dashboard(username, Subscription.getSubscriptions(username)))
       }
     )
   }
+
+  def delete(uid: String, sid: String, rid: String, price: String) = IsAuthenticated { username => implicit request =>
+    Subscription.delete((uid, sid, rid, price))
+    Ok(html.dashboard(username, Subscription.getSubscriptions(username)))
+  } 
 }
+
+case class RuleParams(price: String)

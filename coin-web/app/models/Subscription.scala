@@ -20,14 +20,26 @@ object Subscription extends Redis {
     }
   }
 
-  def getSubscriptions(username: String):Set[String] = {
+  def getSubscriptions(username: String):Set[(String, String, String, String)] = {
     redis.withJedisClient { implicit client =>
       val uid = client.get(Constants.USERNAME_UID.replaceAll("%s", username))
       val sids:Set[String] = client.smembers(Constants.UID_SUBSCRIPTIONS.replaceAll("%s", uid)).toSet
 
       sids map { sid =>
-        client.get(Constants.UID_SID.replace("%1", uid).replace("%2", sid))
+        val params = client.get(Constants.UID_SID.replaceAll("%1", uid).replaceAll("%2", sid)).split('|')
+        (uid, sid, params(0), params(1))
       }
     }    
+  }
+
+  def delete(cond: (String, String, String, String)) = {
+    redis.withJedisClient { implicit client =>
+      val (uid, sid, rid, price) = cond
+      val uidsidKey = Constants.UID_SID.replaceAll("%1", uid).replaceAll("%2", sid)
+
+      client.del(uidsidKey)
+      client.srem(Constants.UID_SUBSCRIPTIONS.replaceAll("%s", uid), sid)
+      client.srem(Constants.RULE_PRICE_SET.replaceAll("%1", rid).replaceAll("%2", price), uid + ":" + sid)
+    }
   }
 }

@@ -9,7 +9,7 @@ import views._
 object Application extends Controller with Secured {
 
   def index = IsAuthenticated { username => request =>
-    Ok(html.dashboard(username, User.getSubscriptions(username)))
+    Ok(html.dashboard(username, Subscription.getSubscriptions(username)))
   }
 
 }

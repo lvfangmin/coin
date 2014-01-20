@@ -1,4 +1,4 @@
-@(username: String, rules: Set[String])
+@(username: String, rules: Set[(String, String, String, String)])
 
 @main("Subscription Dashboard") {
   <div class="panel panel-success">
@@ -7,7 +7,7 @@
         <a class="alignright" href="@routes.Rule.templates()"><button type="button" class="btn btn-success btn-lg">Add Rule</button></a>
     </div>
     @rules.map { rule =>
-      <a href="@routes.Rule.index(rule)"><button type="button" class="btn btn-primary btn-lg btn-block">Rule @rule</button></a>
+      <a href="@routes.Rule.index(rule._1, rule._2, rule._3, rule._4)"><button type="button" class="btn btn-primary btn-lg btn-block">Rule @rule._3 Price @rule._4</button></a>
     }
   </div>
 }
