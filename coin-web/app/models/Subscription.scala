@@ -27,13 +27,21 @@ object Subscription extends Redis {
   def getSubscriptions(username: String):Set[(String, String, String, String)] = {
     redis.withJedisClient { implicit client =>
       val uid = client.get(Constants.USERNAME_UID.replaceAll("%s", username))
-      val sids:Set[String] = client.smembers(Constants.UID_SUBSCRIPTIONS.replaceAll("%s", uid)).toSet
-
-      sids map { sid =>
-        val params = client.get(Constants.UID_SID.replaceAll("%1", uid).replaceAll("%2", sid)).split('|')
-        (uid, sid, params(0), params(1))
+      if (uid == null) {
+        Set()
+      } else {
+        val jsids = client.smembers(Constants.UID_SUBSCRIPTIONS.replaceAll("%s", uid))
+        if (jsids == null) {
+          Set()
+        } else {
+          val sids:Set[String] = jsids.toSet
+          sids map { sid =>
+            val params = client.get(Constants.UID_SID.replaceAll("%1", uid).replaceAll("%2", sid)).split('|')
+            (uid, sid, params(0), params(1))
+          }
+        }
       }
-    }    
+    }
   }
 
   def delete(cond: (String, String, String, String)) = {

@@ -46,14 +46,14 @@ object Rule extends Controller with Secured with Redis {
       formWithError => BadRequest(html.rule.template(rulesMap(ruleId))),
       ruleParams => {
         Subscription.subscribe(ruleId, username, ruleParams.price)
-        Ok(html.dashboard(username, Subscription.getSubscriptions(username)))
+        Redirect(routes.Dashboard.index)
       }
     )
   }
 
   def delete(uid: String, sid: String, rid: String, price: String) = IsAuthenticated { username => implicit request =>
     Subscription.delete((uid, sid, rid, price))
-    Ok(html.dashboard(username, Subscription.getSubscriptions(username)))
+    Redirect(routes.Dashboard.index)
   } 
 }
 
