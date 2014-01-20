@@ -49,9 +49,9 @@ public class DataPreProcessing {
         rules.add(rule);
     }
 
-    private void sendNotifications(int ruleId, String type, int price) {
+    private void sendNotifications(int ruleId, String type, String price) {
         String rp = "rid:" + ruleId + ":price:" + price;
-        Set<String> uidsids = sm.query(rp);
+        Set<String> uidsids = sm.getJedis().smembers(rp);
         for (String uidsid: uidsids) {
             String[] us = uidsid.split(":");
             String uid = us[0];
@@ -71,7 +71,7 @@ public class DataPreProcessing {
     public void handleRawData(CoinData data) {
         int price = (int)data.getLatestPrice();
 
-        int ruleId = 1;
+        int ruleId = 0;
         String type = data.getType();
 
         if (type.equals("btc") && previousBTCPrice > 0) {
@@ -80,7 +80,6 @@ public class DataPreProcessing {
             } else {
                 ruleId = 2;
             }
-            sendNotifications(ruleId, type, price);
         }
 
         if (type.equals("ltc") && previousLTCPrice > 0) {
@@ -89,13 +88,27 @@ public class DataPreProcessing {
             } else {
                 ruleId = 4;
             }
-            sendNotifications(ruleId, type, price);
+        }
+
+        if (ruleId != 0) {
+            Set<String> prices = sm.getJedis().smembers("rid:" + ruleId);
+            for (String p : prices) {
+                if (ruleId == 1 || ruleId == 3) {
+                    if (price >= Integer.parseInt(p)) {
+                        sendNotifications(ruleId, type, p);
+                    }
+                } else if (ruleId == 2 || ruleId == 4) {
+                    if (price <= Integer.parseInt(p)) {
+                        sendNotifications(ruleId, type, p);
+                    }
+                }
+            }
         }
 
         if (type.equals("btc")) {
             previousBTCPrice = price;
         } else {
-            previousLTCPrice = price; 
+            previousLTCPrice = price;
         }
     }
 

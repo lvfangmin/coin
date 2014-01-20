@@ -14,6 +14,7 @@ object Constants {
   val RULE_DESCRIPTION = "rid:$1:description"
   val RULE_TEMPLATE = "rid:$1:template"
   val RULE_NAME = "rid:$1:rulename"
+  val RULE_PRICES = "rid:%s"
   val RULE_PRICE_SET = "rid:%1:price:%2"
   val RULE_DEFAULT_ALERT = "rid:$1:alert"
   val RULE_BRIEF_DESCRIPTION = "rid:$1:brief_description"

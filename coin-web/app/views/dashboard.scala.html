@@ -7,7 +7,18 @@
         <a class="alignright" href="@routes.Rule.templates()"><button type="button" class="btn btn-success btn-lg">Add Rule</button></a>
     </div>
     @rules.map { rule =>
-      <a href="@routes.Rule.index(rule._1, rule._2, rule._3, rule._4)"><button type="button" class="btn btn-primary btn-lg btn-block">Rule @rule._3 Price @rule._4</button></a>
+      @if(rule._3 == "1") {
+        <a href="@routes.Rule.index(rule._1, rule._2, rule._3, rule._4)"><button type="button" class="btn btn-primary btn-lg btn-block">Rule @rule._3 Price @rule._4</button></a>
+      }
+      @if(rule._3 == "2") {
+        <a href="@routes.Rule.index(rule._1, rule._2, rule._3, rule._4)"><button type="button" class="btn btn-warning btn-lg btn-block">Rule @rule._3 Price @rule._4</button></a>
+      }
+      @if(rule._3 == "3") {
+        <a href="@routes.Rule.index(rule._1, rule._2, rule._3, rule._4)"><button type="button" class="btn btn-success btn-lg btn-block">Rule @rule._3 Price @rule._4</button></a>
+      }
+      @if(rule._3 == "4") {
+        <a href="@routes.Rule.index(rule._1, rule._2, rule._3, rule._4)"><button type="button" class="btn btn-danger btn-lg btn-block">Rule @rule._3 Price @rule._4</button></a>
+      }
     }
   </div>
 }
