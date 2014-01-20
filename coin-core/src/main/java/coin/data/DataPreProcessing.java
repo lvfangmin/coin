@@ -62,7 +62,7 @@ public class DataPreProcessing {
 
             sm.getJedis().srem(rp, uidsid);
             sm.getJedis().del("uid:" + uid + ":sid:" + sid);
-            sm.getJedis().srem("uid" + uid + ":subscriptions", sid);
+            sm.getJedis().srem("uid:" + uid + ":subscriptions", sid);
 
         }
     }

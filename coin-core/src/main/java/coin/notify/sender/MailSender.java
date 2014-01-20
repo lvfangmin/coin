@@ -33,8 +33,6 @@ public class MailSender implements Sender {
     private Session session = null;
     private AtomicLong rr = new AtomicLong(0);
 
-    private Properties props = new Properties();
-
     public MailSender() {
         init();
     }
@@ -44,7 +42,8 @@ public class MailSender implements Sender {
         init();
     }
 
-    private void init() {
+    private Session initSession(final String username) {
+        Properties props = new Properties();
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.host", "smtp.gmail.com");
 
@@ -57,21 +56,18 @@ public class MailSender implements Sender {
             props.put("mail.smtp.port", "587");
         }
 
-        session = Session.getInstance(props, new javax.mail.Authenticator() {
+        Session session = Session.getInstance(props, new javax.mail.Authenticator() {
             protected PasswordAuthentication getPasswordAuthentication() {
                 return new PasswordAuthentication(username, password);
             }
         });
 
-        sessions.add(session);
+        return session;
+    }
 
+    private void init() {
         for (int i = 1; i < 4; i++) {
-            final int id = i;
-            sessions.add(Session.getInstance(props, new javax.mail.Authenticator() {
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication("truecoins" + id + "@gmail.com", password);
-                }
-            }));
+            sessions.add(initSession("truecoins" + i + "@gmail.com"));
         }
     }
 
