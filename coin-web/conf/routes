@@ -11,6 +11,8 @@ POST    /reg                        controllers.Registration.regist
 
 GET     /login                      controllers.Login.index
 
+GET     /logout                     controllers.Login.logout
+
 GET     /dashboard                  controllers.Dashboard.index
 
 POST    /authenticate               controllers.Login.authenticate

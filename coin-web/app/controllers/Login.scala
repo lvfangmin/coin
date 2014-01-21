@@ -8,7 +8,7 @@ import play.api.data.Forms._
 import models._
 import views._
 
-object Login extends Controller {
+object Login extends Controller with Secured {
 
   val loginForm = Form(
     tuple(
@@ -21,6 +21,10 @@ object Login extends Controller {
 
   def index = Action { implicit request => 
     Ok(html.login(loginForm))
+  }
+
+  def logout = IsAuthenticated { username => implicit request =>
+    Redirect(routes.Login.index).withNewSession
   }
 
   def authenticate = Action { implicit request =>
