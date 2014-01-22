@@ -47,7 +47,7 @@ public class Crawler {
     public void start() {
         for (CoinTarget target : targets) {
             CrawlerTimerTask  task = new CrawlerTimerTask(target, this.eventBus, timer);
-            timer.schedule(task, 0);
+            timer.schedule(task, target.getInterval() * 1000);
         }
     }
 

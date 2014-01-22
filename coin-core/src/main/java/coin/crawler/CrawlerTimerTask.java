@@ -77,7 +77,8 @@ public class CrawlerTimerTask extends TimerTask {
 
     @Override
     public void run() {
-        timer.schedule(this, Math.max(random.nextInt(target.getInterval()) * 1000, 5000));
+        timer.schedule(new CrawlerTimerTask(target, eventBus, timer),
+                Math.max(random.nextInt(target.getInterval()) * 1000, 5000));
         CoinData data = fetchData();
         if (data != null) {
             eventBus.post(data);
