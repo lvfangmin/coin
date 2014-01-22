@@ -66,7 +66,7 @@ public class MailSender implements Sender {
     }
 
     private void init() {
-        for (int i = 1; i < 4; i++) {
+        for (int i = 2; i <= 6; i++) {
             sessions.add(initSession("truecoins" + i + "@gmail.com"));
         }
     }

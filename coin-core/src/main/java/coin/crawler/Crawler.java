@@ -7,6 +7,7 @@ import com.google.common.eventbus.EventBus;
 
 import java.util.List;
 import java.util.ArrayList;
+
 import java.util.Timer;
 
 import javax.net.ssl.HostnameVerifier;
@@ -34,7 +35,7 @@ public class Crawler {
     protected static final String COIN_TARGET_SELL_SELECTOR = "targets.target($1).sellOutSelector";
     protected static final String COIN_TARGET_PLACEHOLDER_LENGTH = "targets.target($1).placeholderLength";
     protected static final String COIN_TARGET_CRAWLER_INTERVAL = "targets.target($1).interval";
-    
+
     public Crawler(CoinConfiguration conf, EventBus eventBus) {
         this.conf = conf;
         this.eventBus = eventBus;
@@ -42,44 +43,44 @@ public class Crawler {
         this.timer = new Timer();
         parseConf();
     }
- 
+
     public void start() {
-    	for (CoinTarget target : targets) {
-    		CrawlerTimerTask  task = new CrawlerTimerTask(target, this.eventBus);
-    		timer.scheduleAtFixedRate(task, 0, target.getInterval() * 1000);	
-    	}
+        for (CoinTarget target : targets) {
+            CrawlerTimerTask  task = new CrawlerTimerTask(target, this.eventBus, timer);
+            timer.schedule(task, 0);
+        }
     }
-    
+
     private void parseConf() {
-    	CompositeConfiguration crawlerConf = this.conf.getCompositeConfiguration();
-    	String[] targetPrefix = crawlerConf.getStringArray(COIN_TARGET_NAME_PREFIX);
-    	
-    	for (int i = 0; i < targetPrefix.length; ++i) {
-    		String index = String.valueOf(i);
-    		String name = crawlerConf.getString(COIN_TARGET_NAME.replace("$1", index));
+        CompositeConfiguration crawlerConf = this.conf.getCompositeConfiguration();
+        String[] targetPrefix = crawlerConf.getStringArray(COIN_TARGET_NAME_PREFIX);
+
+        for (int i = 0; i < targetPrefix.length; ++i) {
+            String index = String.valueOf(i);
+            String name = crawlerConf.getString(COIN_TARGET_NAME.replace("$1", index));
             logger.info("Add target with name {}", name);
-    		String type = crawlerConf.getString(COIN_TARGET_TYPE.replace("$1", index));
+            String type = crawlerConf.getString(COIN_TARGET_TYPE.replace("$1", index));
             int interval = Integer.valueOf(crawlerConf.getString(COIN_TARGET_CRAWLER_INTERVAL.replace("$1", index)));
             String latestPriceSelector = crawlerConf.getString(COIN_TARGET_PRICE_SELECTOR.replace("$1", index));
             String buyInSelector = crawlerConf.getString(COIN_TARGET_BUY_SELECTOR.replace("$1", index));
             String sellOutSelector = crawlerConf.getString(COIN_TARGET_SELL_SELECTOR.replace("$1", index));
             String url  = crawlerConf.getString(COIN_TARGET_URL.replace("$1", index));
             int placeholderLength = Integer.valueOf(crawlerConf.getString(COIN_TARGET_PLACEHOLDER_LENGTH.replace("$1", index)));
-            
-    		CoinTarget target = new CoinTarget();
-    		target.setBuyInSelector(buyInSelector);
-    		target.setInterval(interval);
-    		target.setLatestPriceSelector(latestPriceSelector);
-    		target.setBuyInSelector(buyInSelector);
-    		target.setSellOutSelector(sellOutSelector);
-    		target.setType(type);
-    		target.setName(name);
-    		target.setUrl(url);
-    		target.setPlaceholderLength(placeholderLength);
-    		targets.add(target);
-    	}
+
+            CoinTarget target = new CoinTarget();
+            target.setBuyInSelector(buyInSelector);
+            target.setInterval(interval);
+            target.setLatestPriceSelector(latestPriceSelector);
+            target.setBuyInSelector(buyInSelector);
+            target.setSellOutSelector(sellOutSelector);
+            target.setType(type);
+            target.setName(name);
+            target.setUrl(url);
+            target.setPlaceholderLength(placeholderLength);
+            targets.add(target);
+        }
     }
-    
+
     private void setHostVerifier() {
         HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
             @Override
