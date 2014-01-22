@@ -31,7 +31,7 @@ public class CrawlerTimerTask extends TimerTask {
     private final Random random = new Random();
     private String[] userAgents = new String[]{"Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)",
                                                "Mozilla/5.0 (iPhone; CPU iPhone OS 6_0 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/10A5376e Safari/8536.25",
-                                               "Chrome"};
+                                               "Chrome", "Firefox", "Opera", "Safari", "Gecko"};
     private final AtomicLong al = new AtomicLong(0);
 
     public CrawlerTimerTask(CoinTarget target, EventBus eventBus, Timer timer) {
